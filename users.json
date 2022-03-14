@@ -1,0 +1,21 @@
+[
+    {    
+        "id": 1,
+        "first_name": "Akash",
+        "last_name": "Dwivedi",
+        "email": "akash@123",
+        "gender": "Male",
+        "ip_address": "164.215.194.36",
+        "age": 20
+    },
+    {    
+        "id": 2,
+        "first_name": "Sohit",
+        "last_name": "Tiwari",
+        "email": "sohiy@test.com",
+        "gender": "Male",
+        "ip_address": "164.215.194.36",
+        "age": 22
+    }
+
+]

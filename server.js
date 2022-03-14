@@ -1,45 +1,89 @@
-const express = require("express");
-let users = require("./users.json")
-const app = express();
-let PORT = 8000
-app.get("/", (req, res) => {
-    res.sendFile(`${__dirname}/index.html`)
+const http = require("http");
+const users = require("./users.json")
+const PORT = 8000;
+const server = http.createServer((req, res) => {
+    res.setHeader('Content-Type', 'application/json');
+
+  if(req.url=="/" && req.method === "GET") {
+      res.write("Hello, Welcome to my server");
+      res.end
+  }
+  else if(req.url === "/users" && req.method === "GET") {
+      res.end(JSON.stringify(users))
+  }
+
+  else if(req.method === "POST" && req.url === "/users") {
+      // console.log("Request:", req);
+      let content = ''
+     req.on('data', (data) => {
+       content += data
+     })
+    //  console.log("content", JSON.stringify(content));
+     req.on('end', () => {
+       let jsonData;
+       try {
+         jsonData = JSON.parse(content)
+       }
+       catch(err) {
+        res.statusCode = 400
+         res.end('{"Error occured"}')
+       }
+       users.push(jsonData)
+       res.end(JSON.stringify(jsonData))
+     })
+  }
+
+  else if(req.url === "/user" && req.method === "PATCH") {
+    let content='';
+    console.log("inside");
+    req.on('data', (data) => {
+      content += data
+    })
+
+    req.on('end', () => {
+      let jsonData;
+
+      try {
+        //  res.statusCode = 200
+        jsonData = JSON.parse(content);
+      }
+      catch (err) {
+        res.statusCode=400
+        res.end(`{"error occured"}`)
+      }
+
+      let user = users.find((user) => user.id === jsonData.id)
+      user.first_name = jsonData.first_name;
+      user.last_name = jsonData.last_name;
+      res.end(JSON.stringify(user))
+    })
+  }
+  else if(req.url === "/user" && req.method === "DELETE") {
+    let content='';
+    console.log("inside");
+    req.on('data', (data) => {
+      content += data
+    })
+
+    req.on('end', () => {
+      let jsonData;
+
+      try {
+        //  res.statusCode = 200
+        jsonData = JSON.parse(content);
+      }
+      catch (err) {
+        res.statusCode=400
+        res.end(`{"error occured"}`)
+      }
+
+      let user = users.filter((user) => user.id !== jsonData.id)
+      res.end(JSON.stringify(user))
+    })
+  }
 })
 
-app.use(express.json())
 
-app.get("/users", (req, res) => {
-    res.json(users)
-})
-
-app.get("/users/:id", (req, res) => {
-    const {id} = req.params;
-    console.log(id);
-    const user = users.find((user) => user.id === Number.parseInt(id));
-    console.log(user);
-    res.json(user)
-})
-
-app.post("/users", (req, res) => {
-  users.push(res.body);
-  res.json(req.body)
-})
-
-app.patch("/users/:id", (req, res) => {
-    const {id} = req.params;
-    const {first_name} = req.body
-
-    const user = users.find((user) => user.id === Number.parseInt(id))
-    user.first_name = first_name;
-    res.json(user)
-})
-
-app.delete("/users/:id", (req, res) => {
-    const {id} = req.params;
-
-     users = users.filter((user) => user.id !== Number.parseInt(id))
-     res.json(users)
-})
-app.listen(PORT, () => {
-    console.log(`starting server at port: ${PORT}`);
+server.listen(PORT, () => {
+    console.log("Starting server");
 })
